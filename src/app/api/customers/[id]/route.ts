@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { productSchema } from "@/lib/validations/product";
+import { customerSchema } from "@/lib/validations/customer";
 
 export async function GET(
   req: Request,
@@ -10,18 +10,19 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const product = await prisma.product.findUnique({
+    const customer = await prisma.customer.findUnique({
       where: { id },
+      include: { route: true },
     });
 
-    if (!product) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    if (!customer) {
+      return NextResponse.json({ error: "Customer not found" }, { status: 404 });
     }
 
-    return NextResponse.json(product);
+    return NextResponse.json(customer);
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to fetch product" },
+      { error: "Failed to fetch customer" },
       { status: 500 }
     );
   }
@@ -34,23 +35,23 @@ export async function PATCH(
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || !["ADMIN", "DEPUTY"].includes((session.user as any).role)) {
+    if (!session || !["ADMIN", "DEPUTY", "ORDER_DESK"].includes((session.user as any).role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id } = await params;
     const body = await req.json();
-    const validatedData = productSchema.partial().parse(body);
+    const validatedData = customerSchema.partial().parse(body);
 
-    const product = await prisma.product.update({
+    const customer = await prisma.customer.update({
       where: { id },
       data: validatedData,
     });
 
-    return NextResponse.json(product);
+    return NextResponse.json(customer);
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to update product" },
+      { error: "Failed to update customer" },
       { status: 500 }
     );
   }
@@ -68,14 +69,14 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    await prisma.product.delete({
+    await prisma.customer.delete({
       where: { id },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to delete product" },
+      { error: "Failed to delete customer" },
       { status: 500 }
     );
   }
