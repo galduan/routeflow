@@ -1,21 +1,18 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductList } from "@/components/products/product-list";
 import { CustomerList } from "@/components/customers/customer-list";
 import { RouteList } from "@/components/routes/route-list";
+import { OrderDialog } from "@/components/orders/order-dialog";
+import { DailyOrders } from "@/components/orders/daily-orders";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    // For now, if no session, just show a placeholder or login link
-    // redirect("/login");
-  }
+export default function DashboardPage() {
+  const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
 
   return (
     <main className="container mx-auto py-8 px-4">
@@ -25,12 +22,14 @@ export default async function DashboardPage() {
           <p className="text-muted-foreground">Order Management & Distribution Dashboard</p>
         </div>
         <div className="flex gap-4">
-          <Button>
+          <Button onClick={() => setIsOrderDialogOpen(true)}>
             <PlusCircle className="mr-2 h-4 w-4" />
             New Order
           </Button>
         </div>
       </div>
+
+      <OrderDialog open={isOrderDialogOpen} onOpenChange={setIsOrderDialogOpen} />
 
       <Tabs defaultValue="products" className="space-y-4">
         <TabsList>
@@ -94,16 +93,14 @@ export default async function DashboardPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="orders">
+        <TabsContent value="orders" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Live Orders Dashboard</CardTitle>
-              <CardDescription>Sprint 2: Real-time order monitoring and locking.</CardDescription>
+              <CardTitle>Today's Distribution</CardTitle>
+              <CardDescription>Real-time order monitoring and route tracking.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12 text-muted-foreground italic">
-                Coming soon in Sprint 2
-              </div>
+              <DailyOrders />
             </CardContent>
           </Card>
         </TabsContent>
