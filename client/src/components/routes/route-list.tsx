@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { User, Users } from "lucide-react";
+import { User, Users, MessageSquare } from "lucide-react";
+import { toast } from "sonner";
 
 interface Route {
   id: string;
@@ -32,6 +33,27 @@ export function RouteList() {
       return res.data;
     },
   });
+
+  const sendWhatsAppReminders = async (routeId: string) => {
+    try {
+      const res = await api.get(`/api/routes/${routeId}/reminder`);
+      const { message, recipients } = res.data;
+
+      if (!recipients.length) {
+        toast.error("No active customers on this route");
+        return;
+      }
+
+      // In MVP, we'll open the first one and show a toast
+      const first = recipients[0];
+      const url = `https://wa.me/${first.phone.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`;
+      window.open(url, "_blank");
+      
+      toast.info(`Opening WhatsApp for ${first.name}. (${recipients.length} total)`);
+    } catch (err) {
+      toast.error("Failed to generate reminder");
+    }
+  };
 
   if (isLoading) return <div>Loading routes...</div>;
 
@@ -73,7 +95,17 @@ export function RouteList() {
                 </div>
               </TableCell>
               <TableCell className="text-right">
-                <Button variant="outline" size="sm">Manage</Button>
+                <div className="flex justify-end gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="text-green-600 border-green-200 bg-green-50 hover:bg-green-100 hover:text-green-700"
+                    onClick={() => sendWhatsAppReminders(route.id)}
+                  >
+                    <MessageSquare className="h-3 w-3 mr-1" /> WhatsApp
+                  </Button>
+                  <Button variant="outline" size="sm">Manage</Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}

@@ -7,6 +7,7 @@ import { OrderDialog } from "@/components/orders/order-dialog";
 import { DailyOrders } from "@/components/orders/daily-orders";
 import { PickingList } from "@/components/reports/picking-list";
 import { DriverView } from "@/components/driver/driver-view";
+import { AlertsCenter } from "@/components/dashboard/alerts-center";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, LayoutDashboard, Truck } from "lucide-react";
@@ -52,6 +53,8 @@ function Dashboard() {
       </div>
 
       <OrderDialog open={isOrderDialogOpen} onOpenChange={setIsOrderDialogOpen} />
+
+      <AlertsCenter />
 
       <Tabs defaultValue="products" className="space-y-4">
         <TabsList>

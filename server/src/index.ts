@@ -8,6 +8,8 @@ import { customerSchema } from "./lib/validations/customer";
 import { orderSchema } from "./lib/validations/order";
 import { initScheduledJobs, lockDailyOrders } from "./services/lock-service";
 import { getPickingSummary } from "./services/report-service";
+import { generateRouteReminder } from "./services/notification-service";
+import { getActiveAlerts } from "./services/alert-service";
 
 dotenv.config();
 
@@ -73,7 +75,6 @@ app.post("/api/orders", async (req, res) => {
     const data = orderSchema.parse(req.body);
     const totalPrice = data.items.reduce((acc, i) => acc + (i.quantity * i.unitPrice), 0);
     
-    // Check if it's a late addition
     const deliveryDate = new Date(data.deliveryDate);
     const now = new Date();
     const isToday = deliveryDate.toDateString() === now.toDateString();
@@ -119,6 +120,21 @@ app.get("/api/routes", async (req, res) => {
     },
   });
   res.json(routes);
+});
+
+app.get("/api/routes/:id/reminder", async (req, res) => {
+  try {
+    const reminder = await generateRouteReminder(req.params.id);
+    res.json(reminder);
+  } catch (err: any) {
+    res.status(404).json({ error: err.message });
+  }
+});
+
+// --- Alerts API ---
+app.get("/api/alerts", async (req, res) => {
+  const alerts = await getActiveAlerts();
+  res.json(alerts);
 });
 
 // --- Reports API ---
