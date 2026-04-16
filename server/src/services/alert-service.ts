@@ -30,29 +30,26 @@ export async function getActiveAlerts() {
   });
 
   // 2. Volume Drop Alert (Simplified for MVP)
-  // Check customers who ordered last week but NOT this week
-  const sevenDaysAgo = subDays(new Date(), 7);
-  const volumeDropCustomers = await prisma.customer.findMany({
+  // ... existing code ...
+
+  // 3. Ghost Orders Alert: Orders today with no route
+  const startOfToday = new Date();
+  startOfToday.setHours(0,0,0,0);
+  const ghostOrders = await prisma.order.findMany({
     where: {
-      isActive: true,
-      orders: {
-        some: {
-          deliveryDate: { gte: fourteenDaysAgo, lt: sevenDaysAgo }
-        },
-        none: {
-          deliveryDate: { gte: sevenDaysAgo }
-        }
-      }
-    }
+      deliveryDate: { gte: startOfToday },
+      customer: { routeId: null }
+    },
+    include: { customer: true }
   });
 
-  volumeDropCustomers.forEach(c => {
+  ghostOrders.forEach(o => {
     alerts.push({
-      type: "VOLUME_DROP",
-      severity: "MEDIUM",
-      customerId: c.id,
-      customerName: c.name,
-      message: "Customer ordered last week but has zero orders this week."
+      type: "GHOST_ORDER",
+      severity: "CRITICAL",
+      customerId: o.customerId,
+      customerName: o.customer.name,
+      message: "Order placed for today but customer is not assigned to any route!"
     });
   });
 

@@ -20,9 +20,9 @@ function Dashboard() {
 
   if (view === "driver") {
     return (
-      <main className="bg-muted/30 min-h-screen">
+      <main className="bg-slate-50 min-h-screen">
         <div className="bg-white border-b p-4 flex justify-between items-center sticky top-0 z-10">
-          <h1 className="font-bold text-primary italic">RouteFlow <span className="text-muted-foreground font-normal not-italic text-sm">Driver</span></h1>
+          <h1 className="font-bold text-blue-600">RouteFlow Driver</h1>
           <Button variant="ghost" size="sm" onClick={() => setView("admin")}>
             <LayoutDashboard className="h-4 w-4 mr-2" /> Admin
           </Button>
@@ -38,7 +38,7 @@ function Dashboard() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">RouteFlow</h1>
-          <p className="text-muted-foreground">Order Management & Distribution Dashboard</p>
+          <p className="text-slate-500">Order Management & Distribution Dashboard</p>
         </div>
         <div className="flex gap-4">
           <Button variant="outline" onClick={() => setView("driver")}>
@@ -140,12 +140,10 @@ function Dashboard() {
   );
 }
 
-function App() {
+export default function App() {
   return (
     <QueryProvider>
       <Dashboard />
     </QueryProvider>
   );
 }
-
-export default App;
